@@ -1,0 +1,25 @@
+# Anything that should not be part of the deployment
+# (But included in github repo)
+
+# exclude dummy making
+make_dummy.py
+dummy.py
+dummy.pickle
+/data_mining
+
+# exclude vscode settings
+.vscode
+
+# exclude unit tests
+/test
+
+# exclude notebooks
+*.ipynb
+
+# exclude data_model
+
+*.zip
+*.sqlite
+*.csv
+*.md
+
