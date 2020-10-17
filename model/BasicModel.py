@@ -31,7 +31,8 @@ class BasicModel:
             file_Path - the path to which file is to be written
         '''
         assert self.model is not None, 'model not built'
-        pickle.dump(self.model, file_path)
+        with open(file_path, "wb") as f:
+            pickle.dump(self.model, f)
 
     def load(self, file_path):
         '''
@@ -39,7 +40,8 @@ class BasicModel:
         Params:
             file_Path - the path from which to load
         '''
-        self.model = pickle.load(file_path)
+        with open(file_path, "rb") as f:
+            self.model = pickle.load(f)
 
     def fit(self, X):
         '''
