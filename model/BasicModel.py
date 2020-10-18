@@ -7,73 +7,44 @@ from sklearn.pipeline import Pipeline
 from sklearn.neighbors import NearestNeighbors
 
 
-class BasicModel:
+class BaseModel:
     '''
-    This is a 'wrapper' for the actual model. It allows for 
-    the model to be instantiated, trained, saved, and reloaded.
+    BaseModel: a plain scikit-learn nearest neighbors model.
+    Params:
+        n_suggestions - number of similar examples to select
+        model_path - path for pickled model to reload. Default =
+                     None, in which case a new model is instantiated.
     '''
-    def __init__(self):
-        self.model = None
-
-    def build(self, n_suggestions):
-        '''
-        Build the model.
-        Params:
-            n_suggestions - the number of similar items to be
-            returned.
-        '''
-        self.model = Model(n_suggestions)
-
-    def save(self, file_path):
-        '''
-        Save the trained model
-        Params:
-            file_Path - the path to which file is to be written
-        '''
-        assert self.model is not None, 'model not built'
-        with open(file_path, "wb") as f:
-            pickle.dump(self.model, f)
-
-    def load(self, file_path):
-        '''
-        Re-load the trained model (instead of building)
-        Params:
-            file_Path - the path from which to load
-        '''
-        with open(file_path, "rb") as f:
-            self.model = pickle.load(f)
-
-    def fit(self, X):
-        '''
-        Fit the model
-        Params:
-            X -- training data. Expected to be a pandas dataframe.
-        '''
-        assert self.model is not None, 'model not built'
-        return self.model.fit(X)
-
-    def predict(self, x):
-        '''
-        Predict similar to example
-        Params:
-            x -- training data. Expected to be a 2-dim array.
-        '''
-        assert self.model is not None, 'model not built'
-        return self.model.predict(x)
-
-
-class Model:
-    def __init__(self, n_suggestions):
+    def __init__(self, n_suggestions, model_path=None):
         self.scaler = StandardScaler()
-        self.model = NearestNeighbors(n_neighbors=n_suggestions)
 
+        if model_path is not None:
+            with open(model_path, 'rb') as f:
+                self.model = pickle.load(f)
+        else:
+            self.model = NearestNeighbors(n_neighbors=n_suggestions)
+            
     def fit(self, X):
+        '''
+        Train the model. X is expected to be a pandas dataframe
+        or 2-dim array.
+        '''
         x_process = self.scaler.fit_transform(X)
         m = self.model.fit(x_process)
         return m
 
     def predict(self, x):
+        '''
+        Find similar examples. X is expected to be a 2-dim array.
+        '''
         x_process = self.scaler.transform(x)
         scores, results = self.model.kneighbors(x_process)
-        
         return scores, results
+
+    def save(self, model_path):
+        '''
+        Save the model. 
+        '''
+        with open(model_path, 'wb') as f:
+            pickle.dump(self.model, f)
+        
